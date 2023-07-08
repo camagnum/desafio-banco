@@ -38,10 +38,10 @@ while True:
             limite_diario -= 1
             print(f"\nSaques que ainda pode realizar hoje: {limite_diario}.\n")
         elif valor < 0 or valor > saldo:
-            system('clear')
+            system("clear")
             print("Insira um valor válido.\n")
         elif limite_diario <= 0:
-            system('clear')
+            system("clear")
             print("Excedeu seu limite de saques diários.\n")
         else:
             print("Insira um valor válido.\n")
@@ -50,6 +50,7 @@ while True:
         print(f"Seu saldo atual é: R${saldo:.2f}.")
         valor = float(input("Qual o valor que deseja depositar?\n"))
         if valor > 0:
+            system("clear")
             saldo += valor
             print(f"===========================\n"
                   f"\nO depósito foi de R${valor:.2f}.\n"
