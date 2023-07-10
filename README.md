@@ -3,7 +3,7 @@
 Projeto desenvolvido durante o bootcamp Ciências de Dados com Python promovido pela DIO em parceria com o iFood.
 
 Foi desenvolvido um sistema bancário com capacidade, inicialmente, para efetuar 3 transações em uma única conta:
-1. Vizualizar Extrato;
+1. Visualizar Extrato;
 2. Sacar;
 3. Depositar.
    
