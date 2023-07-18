@@ -1,5 +1,7 @@
 from os import system
 from datetime import date
+import re
+import textwrap
 
 system("clear")
 saudacao = "=============== Seja Bem Vindo! ================"
@@ -8,8 +10,10 @@ menu = """\n==== Escolha uma das opções para continuar. ====
 [e] - Extrato 
 [s] - Saque
 [d] - Depósito
-[u] - Cadastrar Usuário
-[l] - Listar Usuários
+[nu] - Cadastrar Usuário
+[lu] - Listar Usuários
+[nc] - Criar Conta
+[lc] - Listar Contas
 [f] - Finalizar
 
 => """
@@ -17,20 +21,94 @@ menu = """\n==== Escolha uma das opções para continuar. ====
 print(saudacao)
 
 def criar_usuario(usuarios):
+    while True:
+        cpf = input("Informe o CPF (apenas os números): ")
+        cpf_valido = len(cpf) == 11
+
+        # Verificar se usuário já está cadastrado
+        if cpf_valido:
+            cpf_cadastrado = filtrar_usuario(usuarios,cpf)
+            pass
+        else:
+            print("Insira um CPF com 11 dígitos!")
+            continue
+            
+        if cpf_cadastrado:
+            print("====== CPF já cadastrado! ======")
+            return
+        break
+
     nome = input("Informe o nome completo: ")
-    cpf = input("Informe o CPF (apenas os números): ")
     
-    cpf_valido = len(cpf) == 11
+    # Cadastrar data de nascimento
+    while True:
+        # DIA
+        dia_nascimento = input("Informe o dia de nascimento (dd): ")
+        dia_match = re.fullmatch("[0-9][0-9]",dia_nascimento)
+        if dia_match:
+            pass
+        else:
+            print("Não deu match")
+            continue
+        # MÊS
+        mes_nascimento = input("Informe o mês de nascimento (mm): ")
+        mes_match = re.fullmatch("[0-9][0-9]",mes_nascimento)
+        if mes_match:
+            pass
+        else:
+            print("Não deu match")
+            continue
+        # ANO
+        ano_nascimento = input("Informe o ano de nascimento (aaaa): ")
+        ano_match = re.fullmatch("[0-9][0-9][0-9][0-9]",ano_nascimento)
+        if ano_match:
+            nascimento = (dia_nascimento, mes_nascimento, ano_nascimento)
+            data_nascimento = "/".join(nascimento)
+            break
+        else:
+            print("Não deu match")
+            continue
+        
+    # Cadastrar endereço
+    logradouro = input("Informe o logradouro: ")
+    numero_casa = input("Informe o número: ")
+    bairro = input("Informe o bairro: ")
+    cidade = input("Informe a cidade: ")
+    estado = input("Informe UF: ")
+    endereco = (logradouro + ', ' + numero_casa + ' - ' + bairro + ' - ' + cidade + '/' + estado.upper())
     
-    if cpf_valido:
-        usuarios.append({"nome":nome, "cpf": cpf})
-        print("=== USUÁRIO CRIADO COM SUCESSO ===")
-    else:
-        print("=== ERRO ===")
+    
+    usuarios.append({"nome": nome, "data_nascimento": data_nascimento, "cpf": cpf, "endereco": endereco})
+    print("===== USUÁRIO CRIADO COM SUCESSO =====")
+    print(usuarios[-1])
         
 def listar_usuarios(usuarios):
     for usuario in usuarios:
         print(usuario)
+
+def filtrar_usuario(usuarios,cpf):
+    usuarios_filtrados = [usuario for usuario in usuarios if usuario["cpf"] == cpf]
+    return usuarios_filtrados[0] if usuarios_filtrados else None
+
+def criar_conta(agencia, numero_conta, usuarios):
+    cpf = input("Informe o CPF do usuário: ")
+    usuario = filtrar_usuario(usuarios, cpf)
+    
+    if usuario:
+        print("======= Conta criada com sucesso! =======")
+        return {"usuario": usuario, "agencia": agencia, "numero_conta": numero_conta}
+    else:
+        print("======= Usuário não identificado =======")
+    
+def listar_contas(contas):
+    for conta in contas:
+        conta_formatada = f'''\
+            Agência:\t{conta["agencia"]}
+            C/C:\t\t{conta["numero_conta"]}
+            Titular:\t{conta["usuario"]["nome"]}
+        '''
+        print("=" * 50)
+        print(textwrap.dedent(conta_formatada))
 
 def sacar(*, valor, saldo, extrato, data, limite):
     
@@ -98,9 +176,12 @@ def gerar_extrato(extrato):
 
 def main():
     extrato = []
+    usuarios = []
+    contas = []
+    AGENCIA = "0001"
+    numero_conta = 1
     saldo = 500.0
     limite_diario = 3
-    usuarios = []
 
     while True:
         d = date.today()
@@ -124,13 +205,26 @@ def main():
             saldo, extrato = depositar(valor, saldo, extrato, d)
 
         # CADASTRAR USUÁRIO
-        elif opcao == "u":
+        elif opcao == "nu":
             criar_usuario(usuarios)
         
         # LISTAR USUÁRIOS
-        elif opcao == "l":
+        elif opcao == "lu":
             listar_usuarios(usuarios)
-            
+
+        # CRIAR CONTA
+        elif opcao == "nc":
+            conta = criar_conta(AGENCIA, numero_conta, usuarios)
+
+            if conta:
+                contas.append(conta)
+                numero_conta += 1
+
+
+        # LISTAR CONTAS
+        elif opcao == "lc":
+            listar_contas(contas)
+
         # FINALIZAR
         elif opcao == "f":
             system("clear")
